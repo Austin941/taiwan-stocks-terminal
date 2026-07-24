@@ -1,53 +1,51 @@
+// api/closing.js — 收盤價
+import { withCache, TTL } from './_lib/cache.js';
+
+const TSE_URL = 'https://openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_ALL';
+const OTC_URL = 'https://www.tpex.org.tw/openapi/v1/tpex_mainboard_daily_close_quotes';
+const UA      = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36';
+
+async function safeFetch(url) {
+  try {
+    const res = await fetch(url, { headers: { 'User-Agent': UA }, signal: AbortSignal.timeout(8000) });
+    return res.ok ? await res.json() : [];
+  } catch { return []; }
+}
+
 export default async function handler(req, res) {
-  // Set CORS and Cache headers
   res.setHeader('Access-Control-Allow-Origin', '*');
-  // Cache at Vercel Edge for 1 hour, browser for 1 hour
   res.setHeader('Cache-Control', 'public, s-maxage=3600, max-age=3600');
 
   try {
-    const [tseRes, otcRes] = await Promise.all([
-      fetch('https://openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_ALL', {
-        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
-      }),
-      fetch('https://www.tpex.org.tw/openapi/v1/tpex_mainboard_daily_close_quotes', {
-        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
-      })
-    ]);
+    const data = await withCache('closing:all', async () => {
+      const [tseData, otcData] = await Promise.all([safeFetch(TSE_URL), safeFetch(OTC_URL)]);
+      const cache = {};
 
-    const tseData = await tseRes.json();
-    const otcData = await otcRes.json();
+      tseData.forEach(item => {
+        const code  = item.Code?.trim();
+        const close = parseFloat(String(item.ClosingPrice || '').replace(/,/g, ''));
+        const chg   = parseFloat(String(item.Change      || '').replace(/,/g, ''));
+        if (!code || !isFinite(close) || close <= 0) return;
+        const prevClose = close - chg;
+        cache[code] = { prevClose: prevClose > 0 ? prevClose : close };
+      });
 
-    const cache = {};
+      otcData.forEach(item => {
+        const code  = item.SecuritiesCompanyCode?.trim();
+        const close = parseFloat(String(item.Close  || '').replace(/,/g, ''));
+        const chg   = parseFloat(String(item.Change || '').replace(/,/g, ''));
+        if (!code || !isFinite(close) || close <= 0) return;
+        const prevClose = close - chg;
+        cache[code] = { prevClose: prevClose > 0 ? prevClose : close };
+      });
 
-    // Process TSE
-    tseData.forEach(item => {
-      const code = item.Code?.trim();
-      const close = parseFloat(String(item.ClosingPrice || '').trim());
-      const change = parseFloat(String(item.Change || '').trim());
-      if (!code || isNaN(close) || close <= 0) return;
+      if (Object.keys(cache).length === 0) throw new Error('Both TSE and OTC returned empty data');
+      return cache;
+    }, TTL.CLOSING);
 
-      const prevClose = close - change;
-      cache[code] = {
-        prevClose: prevClose > 0 ? prevClose : close
-      };
-    });
-
-    // Process OTC
-    otcData.forEach(item => {
-      const code = item.SecuritiesCompanyCode?.trim();
-      const close = parseFloat(String(item.Close || '').trim());
-      const change = parseFloat(String(item.Change || '').trim());
-      if (!code || isNaN(close) || close <= 0) return;
-
-      const prevClose = close - change;
-      cache[code] = {
-        prevClose: prevClose > 0 ? prevClose : close
-      };
-    });
-
-    res.status(200).json({ data: cache });
-  } catch (error) {
-    console.error('Closing API Error:', error.message);
-    res.status(500).json({ error: 'Failed to fetch closing data' });
+    res.status(200).json({ data });
+  } catch (err) {
+    console.error('[closing] Error:', err.message);
+    res.status(500).json({ error: 'Failed to fetch closing data', details: err.message });
   }
 }

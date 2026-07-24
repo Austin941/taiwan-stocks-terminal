@@ -1,8 +1,6 @@
+// api/proxy.js — TWSE 即時報價代理 (帶 Edge Cache)
 export default async function handler(req, res) {
-  // Set CORS and Cache headers
   res.setHeader('Access-Control-Allow-Origin', '*');
-  // Cache at Vercel Edge for 10 seconds to prevent hammering TWSE
-  // stale-while-revalidate allows serving stale cache while fetching new data in background
   res.setHeader('Cache-Control', 'public, s-maxage=10, stale-while-revalidate=15');
 
   const { symbols } = req.query;
@@ -13,13 +11,11 @@ export default async function handler(req, res) {
 
   try {
     const url = `https://mis.twse.com.tw/stock/api/getStockInfo.jsp?ex_ch=${symbols}&json=1&delay=0`;
-    
-    // Add User-Agent to bypass some WAF rules
+
     const response = await fetch(url, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
       },
-      // Timeout is natively supported in Vercel fetch (approx 10s default)
     });
 
     if (!response.ok) {
