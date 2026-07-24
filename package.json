@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "concurrently \"node server.js\" \"vite\"",
-    "build": "vite build",
-    "vercel-build": "vite build",
+    "build": "npx vite build",
+    "vercel-build": "npx vite build",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -14,7 +14,11 @@
     "chartjs-plugin-datalabels": "^2.2.0",
     "express": "^4.18.2",
     "node-fetch": "^3.3.2",
-    "vite": "^5.0.12",
+    "papaparse": "^5.4.1",
+    "vite": "^5.4.21",
     "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
