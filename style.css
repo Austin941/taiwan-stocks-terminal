@@ -96,55 +96,73 @@ body {
   z-index: 1;
 }
 
-/* Horizontal Sidebar Resizer Handle */
+/* Horizontal Sidebar Resizer Handle (左右拖曳縮放側欄) */
 .sidebar-resizer {
-  width: 8px;
-  margin: 0 -3px;
+  width: 10px;
+  margin: 0 -4px;
   cursor: col-resize;
   position: relative;
   z-index: 100;
-  background: transparent;
-  transition: background 0.2s, width 0.2s;
+  background: rgba(255, 255, 255, 0.03);
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   flex-shrink: 0;
 }
 .sidebar-resizer:hover, .sidebar-resizer.is-resizing {
-  background: rgba(56, 189, 248, 0.4);
-  box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+  background: rgba(56, 189, 248, 0.3);
+  border-color: #38bdf8;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.6);
 }
 .sidebar-resizer::after {
   content: '';
   position: absolute;
   top: 50%; left: 50%;
   transform: translate(-50%, -50%);
-  width: 2px; height: 32px;
-  background: rgba(255, 255, 255, 0.3);
-  border-radius: 1px;
+  width: 3px; height: 40px;
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 2px;
+  box-shadow: 0 0 4px rgba(0,0,0,0.5);
+}
+.sidebar-resizer:hover::after, .sidebar-resizer.is-resizing::after {
+  background: #facc15;
+  height: 55px;
 }
 
-/* Vertical Panel Resizer Handle */
+/* Vertical Panel Resizer Handle (上下拖曳縮放明細) */
 .panel-resizer {
-  height: 8px;
-  margin: 4px 0;
+  height: 12px;
+  margin: 6px 0;
   cursor: row-resize;
   position: relative;
   z-index: 50;
-  background: transparent;
-  transition: background 0.2s;
+  background: rgba(255, 255, 255, 0.03);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   flex-shrink: 0;
 }
 .panel-resizer:hover, .panel-resizer.is-resizing {
-  background: rgba(56, 189, 248, 0.4);
-  box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+  background: rgba(56, 189, 248, 0.3);
+  border-color: #38bdf8;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.6);
 }
 .panel-resizer::after {
   content: '';
   position: absolute;
   top: 50%; left: 50%;
   transform: translate(-50%, -50%);
-  height: 2px; width: 36px;
-  background: rgba(255, 255, 255, 0.3);
-  border-radius: 1px;
+  height: 3px; width: 50px;
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 2px;
+  box-shadow: 0 0 4px rgba(0,0,0,0.5);
 }
+.panel-resizer:hover::after, .panel-resizer.is-resizing::after {
+  background: #facc15;
+  width: 70px;
+}
+
 
 
 /* MAIN PANEL (Left) */
