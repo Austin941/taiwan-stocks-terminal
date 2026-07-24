@@ -1108,3 +1108,165 @@ body {
 .sidebar-tab:active, .period-btn:active, .size-btn:active, .interval-btn:active {
   transform: scale(0.95);
 }
+
+/* ============================================================
+   SKELETON LOADING SCREEN
+   ============================================================ */
+#app-skeleton-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: var(--bg-dark);
+  display: flex; flex-direction: column;
+}
+.skeleton-layout {
+  display: flex; flex-direction: column; height: 100%; padding: 12px;
+  gap: 10px;
+}
+.skeleton-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 16px; background: rgba(30,41,59,0.7);
+  border-radius: 10px; border: 1px solid rgba(255,255,255,0.08);
+  min-height: 56px;
+}
+.skeleton-body {
+  display: flex; gap: 10px; flex: 1; overflow: hidden;
+}
+.skeleton-main {
+  flex: 1; background: rgba(30,41,59,0.7);
+  border-radius: 10px; border: 1px solid rgba(255,255,255,0.08);
+  padding: 16px; display: flex; flex-direction: column;
+}
+.skeleton-sidebar {
+  width: 340px; background: rgba(30,41,59,0.7);
+  border-radius: 10px; border: 1px solid rgba(255,255,255,0.08);
+  padding: 12px; display: flex; flex-direction: column; gap: 10px;
+}
+.skeleton-mobile-tabs {
+  display: none;
+  background: rgba(15,23,42,0.98);
+  border-top: 1px solid rgba(255,255,255,0.1);
+  padding: 8px 0; min-height: 58px;
+}
+.skel-tab { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.skel-row { display: flex; align-items: center; gap: 10px; }
+.skel-box {
+  background: linear-gradient(90deg, rgba(255,255,255,0.06) 25%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0.06) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ============================================================
+   MOBILE BOTTOM TAB BAR
+   ============================================================ */
+.mobile-tab-bar {
+  display: none;
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: rgba(15, 23, 42, 0.98);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(16px);
+  z-index: 200;
+  padding: 4px 0 calc(4px + env(safe-area-inset-bottom));
+}
+.mobile-tab-bar-inner {
+  display: flex; align-items: stretch;
+}
+.mobile-tab-btn {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 3px; padding: 6px 4px;
+  background: transparent; border: none; cursor: pointer;
+  color: #64748b; font-size: 0.7rem; font-family: var(--font-family);
+  transition: color 0.2s, transform 0.15s;
+  min-height: 50px;
+}
+.mobile-tab-btn .tab-icon { font-size: 1.3rem; line-height: 1; }
+.mobile-tab-btn.active { color: var(--accent-color); }
+.mobile-tab-btn:active { transform: scale(0.9); }
+
+/* ============================================================
+   CHIP LOADING SPINNER
+   ============================================================ */
+.chip-loading {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; min-height: 80px;
+}
+.spinner {
+  width: 32px; height: 32px;
+  border: 3px solid rgba(56,189,248,0.2);
+  border-top-color: #38bdf8;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ============================================================
+   RESPONSIVE — Mobile (≤ 768px)
+   ============================================================ */
+@media (max-width: 768px) {
+  .tv-layout {
+    padding-bottom: 62px; /* room for mobile tab bar */
+  }
+  .tv-workspace {
+    flex-direction: column;
+    gap: 0;
+  }
+  .tv-sidebar {
+    display: none !important; /* replaced by bottom sheet on mobile */
+  }
+  .tv-main-panel {
+    border-radius: 0;
+    flex: 1;
+  }
+  .tv-header {
+    padding: 8px 12px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .header-center {
+    order: 3; flex: 0 0 100%;
+    max-width: 100% !important;
+    margin: 0 !important;
+  }
+  .mobile-tab-bar { display: block; }
+  .skeleton-mobile-tabs { display: flex; }
+  .skeleton-sidebar { display: none; }
+
+  /* Mobile Bottom Sheet (slides up from bottom) */
+  .mobile-bottom-sheet {
+    position: fixed; bottom: 62px; left: 0; right: 0;
+    background: rgba(15, 23, 42, 0.98);
+    border-radius: 16px 16px 0 0;
+    border-top: 1px solid rgba(56,189,248,0.3);
+    max-height: 70vh;
+    transform: translateY(100%);
+    transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 150;
+    display: flex; flex-direction: column;
+    backdrop-filter: blur(20px);
+  }
+  .mobile-bottom-sheet.open {
+    transform: translateY(0);
+  }
+  .mobile-sheet-handle {
+    width: 40px; height: 4px;
+    background: rgba(255,255,255,0.25);
+    border-radius: 2px;
+    margin: 10px auto 6px;
+    cursor: pointer;
+  }
+  .mobile-sheet-content {
+    flex: 1; overflow-y: auto; padding: 0 12px 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .tv-main-toolbar { flex-direction: column; gap: 8px; align-items: flex-start; }
+  .xaxis-btn-container { gap: 4px; }
+  .xaxis-btn { padding: 5px 10px; font-size: 0.78rem; }
+  .drawer-stock-title { font-size: 1rem; }
+}
+

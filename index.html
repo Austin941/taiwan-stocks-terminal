@@ -304,7 +304,37 @@
   <!-- Floating Custom Tooltip -->
   <div id="chart-tooltip" class="chart-tooltip"></div>
 
+  <!-- Mobile Bottom Tab Bar (手機版底部導航列) -->
+  <nav class="mobile-tab-bar" id="mobile-tab-bar" aria-label="手機版底部導航">
+    <div class="mobile-tab-bar-inner">
+      <button class="mobile-tab-btn active" data-view="view-ranking" id="mtab-ranking">
+        <span class="tab-icon">🏭</span>產業
+      </button>
+      <button class="mobile-tab-btn" data-view="view-theme" id="mtab-theme">
+        <span class="tab-icon">🏷️</span>題材
+      </button>
+      <button class="mobile-tab-btn" data-view="view-group" id="mtab-group">
+        <span class="tab-icon">🏢</span>集團
+      </button>
+      <button class="mobile-tab-btn" data-view="view-radar" id="mtab-radar">
+        <span class="tab-icon">🔥</span>熱門
+      </button>
+      <button class="mobile-tab-btn" data-view="search" id="mtab-search">
+        <span class="tab-icon">🔍</span>搜尋
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile Bottom Sheet (數據面板從底部滑出) -->
+  <div class="mobile-bottom-sheet" id="mobile-bottom-sheet">
+    <div class="mobile-sheet-handle" id="mobile-sheet-handle"></div>
+    <div class="mobile-sheet-content" id="mobile-sheet-content">
+      <!-- 由 JS 動態注入對應的表格內容 -->
+    </div>
+  </div>
+
   <!-- Scripts -->
   <script type="module" src="./main.js"></script>
 </body>
 </html>
+
