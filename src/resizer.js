@@ -1,5 +1,6 @@
 // ============================================================
-// RESIZER — Desktop sidebar drag-to-resize
+// RESIZER — Desktop sidebar & vertical panel drag-to-resize
+// 支援左右拖曳側邊欄 + 上下拖曳明細面板（雙向伸縮與記憶）
 // ============================================================
 import { state } from './state.js';
 
@@ -50,14 +51,14 @@ export function initSidebarResizer() {
   resizer.addEventListener('pointercancel', stopDrag);
 }
 
-// ---- Desktop/Tablet vertical drag-to-resize between Canvas and Detail Table ----
+// ---- Vertical drag-to-resize between Canvas and Detail Table ----
 export function initVerticalResizer() {
-  const resizer = document.getElementById('main-vertical-resizer');
+  const resizer = document.getElementById('main-vertical-resizer') || document.getElementById('panel-resizer');
   const canvasContainer = document.querySelector('.canvas-container');
-  const detailWrapper = document.getElementById('detail-table-wrapper');
+  const detailWrapper = document.getElementById('sector-detail-panel') || document.getElementById('detail-table-wrapper');
   const viewWrapper = document.getElementById('bubble-chart-view');
 
-  if (!resizer || !canvasContainer || !detailWrapper || !viewWrapper) return;
+  if (!resizer || !canvasContainer || !viewWrapper) return;
 
   // Restore saved height
   const savedH = parseInt(localStorage.getItem('tv_canvas_height'), 10);
@@ -71,7 +72,7 @@ export function initVerticalResizer() {
   let startH = 0;
 
   const startDrag = (e) => {
-    if (window.innerWidth <= 768) return; // Disable on small phone screens
+    if (window.innerWidth <= 768) return;
     dragging = true;
     resizer.classList.add('is-resizing');
     document.body.style.cursor = 'row-resize';
@@ -98,9 +99,7 @@ export function initVerticalResizer() {
       canvasContainer.style.flex = 'none';
       canvasContainer.style.height = `${newH}px`;
       localStorage.setItem('tv_canvas_height', Math.round(newH));
-      if (state.chartInstance) {
-        state.chartInstance.resize();
-      }
+      if (state.chartInstance) state.chartInstance.resize();
     }
   };
 
@@ -113,9 +112,7 @@ export function initVerticalResizer() {
     if (e.pointerId && resizer.releasePointerCapture) {
       try { resizer.releasePointerCapture(e.pointerId); } catch (_) {}
     }
-    if (state.chartInstance) {
-      state.chartInstance.resize();
-    }
+    if (state.chartInstance) state.chartInstance.resize();
   };
 
   resizer.addEventListener('pointerdown', startDrag);

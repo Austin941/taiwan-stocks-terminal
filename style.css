@@ -90,11 +90,62 @@ body {
 .tv-workspace {
   display: flex;
   flex: 1;
-  gap: 10px;
+  gap: 0;
   min-height: 0; /* Important for flex children to scroll */
   position: relative;
   z-index: 1;
 }
+
+/* Horizontal Sidebar Resizer Handle */
+.sidebar-resizer {
+  width: 8px;
+  margin: 0 -3px;
+  cursor: col-resize;
+  position: relative;
+  z-index: 100;
+  background: transparent;
+  transition: background 0.2s, width 0.2s;
+  flex-shrink: 0;
+}
+.sidebar-resizer:hover, .sidebar-resizer.is-resizing {
+  background: rgba(56, 189, 248, 0.4);
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+}
+.sidebar-resizer::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 2px; height: 32px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 1px;
+}
+
+/* Vertical Panel Resizer Handle */
+.panel-resizer {
+  height: 8px;
+  margin: 4px 0;
+  cursor: row-resize;
+  position: relative;
+  z-index: 50;
+  background: transparent;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+.panel-resizer:hover, .panel-resizer.is-resizing {
+  background: rgba(56, 189, 248, 0.4);
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+}
+.panel-resizer::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  height: 2px; width: 36px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 1px;
+}
+
 
 /* MAIN PANEL (Left) */
 .tv-main-panel {
