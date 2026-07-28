@@ -1,6 +1,6 @@
 // ============================================================
-// _lib/cache.js — In-Memory LRU Cache
-// 共享快取：所有 API handler 共用同一份記憶體快取
+// _lib/cache.js — Persistent & In-Memory LRU Cache with Stale Fallback
+// 共享快取與持續備份機制：當抓不到新資料/休市時，自動回傳上一筆有效數值！
 // ============================================================
 
 class LRUCache {
@@ -13,7 +13,7 @@ class LRUCache {
     if (!this._map.has(key)) return null;
     const entry = this._map.get(key);
     if (Date.now() > entry.expiresAt) {
-      this._map.delete(key);
+      // 保持過期資料以防抓不到新資料時降級使用
       return null;
     }
     this._map.delete(key);
@@ -44,6 +44,9 @@ export const TTL = {
   KLINE:         300_000,   // 5min
 };
 
+const _inflight = new Map();
+const _lastValidDataMap = new Map(); // 全局保存最新一次成功抓取到的有效資料
+
 export async function withCache(key, fetcher, ttlMs, staleOk = true) {
   const cached = cache.get(key);
   if (cached !== null) return cached;
@@ -54,24 +57,40 @@ export async function withCache(key, fetcher, ttlMs, staleOk = true) {
 
   const promise = fetcher()
     .then(data => {
+      // 驗證抓到的資料是否有效（非空物件或無效陣列）
+      const isValid = data && (
+        (Array.isArray(data) && data.length > 0) ||
+        (typeof data === 'object' && Object.keys(data).length > 0)
+      );
+
+      if (isValid) {
+        cache.set(key, data, ttlMs);
+        _lastValidDataMap.set(key, data); // 備份最新的有效資料
+        _inflight.delete(key);
+        return data;
+      }
+
+      // 如果抓不到新資料（如休市或回傳空資料），嘗試降級顯示備份資料
+      if (staleOk && _lastValidDataMap.has(key)) {
+        console.warn(`[Cache] Empty data returned for ${key}, falling back to last valid cached data.`);
+        _inflight.delete(key);
+        return _lastValidDataMap.get(key);
+      }
+
       cache.set(key, data, ttlMs);
       _inflight.delete(key);
       return data;
     })
     .catch(err => {
       _inflight.delete(key);
-      if (staleOk) {
-        const stale = _staleMap.get(key);
-        if (stale !== undefined) return stale;
+      // 當網路或 API 異常抓不到新資料時，強制回傳最新一次成功抓取的歷史數值
+      if (staleOk && _lastValidDataMap.has(key)) {
+        console.warn(`[Cache] Fetch error for ${key}: ${err.message}. Falling back to last valid cached data.`);
+        return _lastValidDataMap.get(key);
       }
       throw err;
     });
 
   _inflight.set(key, promise);
-  promise.then(data => _staleMap.set(key, data)).catch(() => {});
-
   return promise;
 }
-
-const _inflight = new Map();
-const _staleMap = new Map();
