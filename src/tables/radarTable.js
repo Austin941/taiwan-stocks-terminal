@@ -27,6 +27,10 @@ export function resortRadarTable(targetDays = state.currentPeriodDays) {
     const key = state.radarSortCol;
     let vA = 0, vB = 0;
     if (key === 'price')        { vA = a.price || 0;             vB = b.price || 0; }
+    else if (key === 'change')  {
+      vA = (a.price && a.prevClose) ? (a.price - a.prevClose) : 0;
+      vB = (b.price && b.prevClose) ? (b.price - b.prevClose) : 0;
+    }
     else if (key === 'amount')  { vA = a.amountDiff ?? a.amount; vB = b.amountDiff ?? b.amount; }
     else if (key === 'amount_abs') { vA = a.amount; vB = b.amount; }
     else if (key === 'volume') { vA = a.volume; vB = b.volume; }
@@ -42,7 +46,7 @@ export function renderRadarFromData(data, targetDays = state.currentPeriodDays) 
   const tbody = getTbody('view-radar', targetDays);
   if (!tbody) return;
   if (data.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" class="text-center">暫無交易資料</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" class="text-center">暫無交易資料</td></tr>';
     return;
   }
   const maxVal = Math.max(...data.map(d => Math.abs(d.amountDiff ?? d.amount))) || 1;
@@ -55,6 +59,8 @@ export function renderRadarFromData(data, targetDays = state.currentPeriodDays) 
       const sector  = stock['產業別'] || '無';
       const ret     = d.dailyReturn;
       const price   = d.price ? d.price.toFixed(2) : '-';
+      const changeVal = (d.price && d.prevClose) ? (d.price - d.prevClose) : 0;
+      const changeStr = changeVal > 0 ? `+${changeVal.toFixed(2)}` : changeVal < 0 ? `${changeVal.toFixed(2)}` : '0.00';
       const cls     = ret > 0 ? 'color-positive' : ret < 0 ? 'color-negative' : '';
       const sign    = ret > 0 ? '+' : '';
       const retPct  = Math.min(Math.abs(ret) / 10 * 100, 100);
@@ -69,6 +75,7 @@ export function renderRadarFromData(data, targetDays = state.currentPeriodDays) 
         </div></td>
         <td><span class="badge-sector">${sector}</span></td>
         <td class="text-right font-bold ${cls}">${price}</td>
+        <td class="text-right font-bold ${cls}">${changeStr}</td>
         <td class="text-right ${cls} data-bar-cell">
           <div class="data-bar" style="width:${retPct}%;background:${retBar}"></div>
           <strong class="data-bar-text">${sign}${ret.toFixed(2)}%</strong>
@@ -77,6 +84,7 @@ export function renderRadarFromData(data, targetDays = state.currentPeriodDays) 
         ${amtCell}
         <td class="text-right" style="color:#94a3b8">${(d.amount / 1e8).toFixed(2)}</td>
       `;
+
 
 
       const oldAmt = tr.getAttribute('data-amount');
