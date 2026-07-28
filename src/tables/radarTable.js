@@ -46,7 +46,8 @@ export function renderRadarFromData(data, targetDays = state.currentPeriodDays) 
   const tbody = getTbody('view-radar', targetDays);
   if (!tbody) return;
   if (data.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="8" class="text-center">暫無交易資料</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="9" class="text-center">暫無交易資料</td></tr>';
+
     return;
   }
   const maxVal = Math.max(...data.map(d => Math.abs(d.amountDiff ?? d.amount))) || 1;
