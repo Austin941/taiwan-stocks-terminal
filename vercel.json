@@ -3,13 +3,75 @@
   "outputDirectory": "dist",
   "framework": "vite",
   "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/$1" },
+    { "source": "/(.*)",     "destination": "/index.html" }
+  ],
+  "headers": [
     {
-      "source": "/api/(.*)",
-      "destination": "/api/$1"
+      "source": "/assets/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
     },
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "source": "/api/proxy",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, s-maxage=15, stale-while-revalidate=60" }
+      ]
+    },
+    {
+      "source": "/api/closing",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, s-maxage=1800, stale-while-revalidate=3600" }
+      ]
+    },
+    {
+      "source": "/api/chip",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, s-maxage=600, stale-while-revalidate=1200" }
+      ]
+    },
+    {
+      "source": "/api/margin",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, s-maxage=1800, stale-while-revalidate=3600" }
+      ]
+    },
+    {
+      "source": "/api/branches",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, s-maxage=1800, stale-while-revalidate=3600" }
+      ]
+    },
+    {
+      "source": "/api/banks",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, s-maxage=1800, stale-while-revalidate=3600" }
+      ]
+    },
+    {
+      "source": "/api/major_holders",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, s-maxage=1800, stale-while-revalidate=3600" }
+      ]
+    },
+    {
+      "source": "/api/kline",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, s-maxage=1800, stale-while-revalidate=3600" }
+      ]
+    },
+    {
+      "source": "/api/conglomerates",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, s-maxage=86400, stale-while-revalidate=86400" }
+      ]
+    },
+    {
+      "source": "/api/dictionary",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, s-maxage=86400, stale-while-revalidate=86400" }
+      ]
     }
   ]
 }

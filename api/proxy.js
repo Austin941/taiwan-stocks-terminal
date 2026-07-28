@@ -1,7 +1,10 @@
-// api/proxy.js — TWSE 即時報價代理 (帶 Edge Cache)
+// api/proxy.js — TWSE 即時報價代理 (智慧盤中/盤後 Edge Cache)
+// 盤中: s-maxage=15s | 盤後/週末: s-maxage=3600s → FOT 大幅減少
+import { buildLiveHeader } from './_lib/cacheControl.js';
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Cache-Control', 'public, s-maxage=10, stale-while-revalidate=15');
+  res.setHeader('Cache-Control', buildLiveHeader(15, 3_600));
 
   const { symbols } = req.query;
 
