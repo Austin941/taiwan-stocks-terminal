@@ -73,12 +73,13 @@ export function renderDetailTable(data) {
           <strong style="color:#facc15">${item.stock['股票名稱']}</strong> <span style="color:#94a3b8;font-size:0.85em">${item.symbol}</span>
         </a></td>
         <td><span class="badge-sector" style="font-size:0.75em">${item.stock['產業別'] || '無'}</span></td>
-        <td class="text-right font-bold" style="color:#f8fafc">${price}</td>
+        <td class="text-right font-bold ${cls}">${price}</td>
         <td class="text-right font-bold"><span class="${cls}">${sign}${ret.toFixed(2)}%</span></td>
         <td class="text-right">${Math.round(item.volume).toLocaleString()}</td>
         ${amtCell}
         <td class="text-right" style="color:#94a3b8">${absAmt}</td>
       `;
+
 
       tr.setAttribute('data-symbol', item.symbol);
       if (!tr.hasAttribute('data-amount')) {
