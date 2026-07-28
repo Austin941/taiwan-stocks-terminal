@@ -97,19 +97,40 @@ export async function fetchSnapshot(allStocks = []) {
 
               let price = parseFloat(item.z);
               if (isNaN(price) || price <= 0) {
-                 if (item.pz && item.pz !== '-') {
-                   price = parseFloat(item.pz);
-                 } else if (item.a && item.b && item.a !== '-' && item.b !== '-') {
-                   const ask = parseFloat(item.a.split('_')[0]);
-                   const bid = parseFloat(item.b.split('_')[0]);
-                   if (!isNaN(ask) && !isNaN(bid)) {
-                     price = (ask + bid) / 2;
-                   }
-                 }
-                 if (isNaN(price) || price <= 0) {
-                   price = prevClose;
-                 }
+                if (item.pz && item.pz !== '-' && !isNaN(parseFloat(item.pz))) {
+                  price = parseFloat(item.pz);
+                } else {
+                  // 解析第一檔買價 (bid) 與第一檔賣價 (ask)
+                  let ask = null, bid = null;
+                  if (item.a && item.a !== '-') {
+                    const aVal = parseFloat(item.a.split('_')[0]);
+                    if (!isNaN(aVal) && aVal > 0) ask = aVal;
+                  }
+                  if (item.b && item.b !== '-') {
+                    const bVal = parseFloat(item.b.split('_')[0]);
+                    if (!isNaN(bVal) && bVal > 0) bid = bVal;
+                  }
+
+                  if (ask !== null && bid !== null) {
+                    price = (ask + bid) / 2; // 一般中間價
+                  } else if (ask !== null) {
+                    price = ask; // 跌停鎖死：只有賣盤 (ask 跌停價)
+                  } else if (bid !== null) {
+                    price = bid; // 漲停鎖死：只有買盤 (bid 漲停價)
+                  } else if (item.w && item.w !== '-' && !isNaN(parseFloat(item.w))) {
+                    price = parseFloat(item.w); // 跌停價 fallback
+                  } else if (item.u && item.u !== '-' && !isNaN(parseFloat(item.u))) {
+                    price = parseFloat(item.u); // 漲停價 fallback
+                  } else if (item.o && item.o !== '-' && !isNaN(parseFloat(item.o))) {
+                    price = parseFloat(item.o); // 開盤價 fallback
+                  }
+                }
+
+                if (isNaN(price) || price <= 0) {
+                  price = prevClose;
+                }
               }
+
 
               const volume = parseInt(item.v) || 0;
               if (prevClose > 0) {
