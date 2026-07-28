@@ -1,5 +1,6 @@
-// api/closing.js — 收盤價
+// api/closing.js — 收盤價 (智慧時間型快取控制版)
 import { withCache, TTL } from './_lib/cache.js';
+import { buildTimeBasedCacheHeader } from './_lib/cacheControl.js';
 
 const TSE_URL = 'https://openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_ALL';
 const OTC_URL = 'https://www.tpex.org.tw/openapi/v1/tpex_mainboard_daily_close_quotes';
@@ -14,7 +15,7 @@ async function safeFetch(url) {
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Cache-Control', 'public, s-maxage=3600, max-age=3600');
+  res.setHeader('Cache-Control', buildTimeBasedCacheHeader(13, 31, 1800));
 
   try {
     const data = await withCache('closing:all', async () => {
