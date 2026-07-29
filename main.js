@@ -19,11 +19,21 @@ import { showChart }        from './src/chart.js';
 window.onerror = (msg, _src, _line, _col, err) => console.error('[GlobalError]', msg, err);
 window.addEventListener('unhandledrejection', e => console.error('[UnhandledRejection]', e.reason));
 
+// ---- Project Pause Switch (專案暫停開關) ----
+const IS_PAUSED = true;
+
 // ============================================================
 async function init() {
   showSkeleton(); // Instant perceived performance
 
   try {
+    const el = document.getElementById('last-updated');
+    if (IS_PAUSED) {
+      if (el) el.textContent = '⏸️ 專案已暫停服務（已停止所有即時資料輪詢與 API 請求，零用量消耗中）';
+      console.log('[PauseMode] Project is paused. No live network requests will be executed.');
+      return;
+    }
+
     // 1. Parallel: load stock CSV + historical ranking
     const [_, historicalData] = await Promise.all([
       _loadStockCSV(),
@@ -48,7 +58,7 @@ async function init() {
 
     // 5. Live refresh every 15s (market-open, 1-day mode only)
     setInterval(() => {
-      if (state.currentPeriodDays === 1 && state.isMarketOpenNow) {
+      if (state.currentPeriodDays === 1 && state.isMarketOpenNow && !IS_PAUSED) {
         processData(true); // silent refresh
       }
     }, REFRESH_INTERVAL_MS);

@@ -4,7 +4,8 @@ import { buildLiveHeader } from './_lib/cacheControl.js';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Cache-Control', buildLiveHeader(15, 3_600));
+  res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+  return res.status(200).json({ status: 'paused', message: 'Project is paused to save quota.' });
 
   const { symbols } = req.query;
 
