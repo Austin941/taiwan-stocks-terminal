@@ -22,15 +22,27 @@ export function renderRadarTable() {
   resortRadarTable();
 }
 
+function getChangeVal(d) {
+  if (d.price && d.prevClose) return d.price - d.prevClose;
+  if (d.price && d.dailyReturn) return d.price - (d.price / (1 + d.dailyReturn / 100));
+  if (d.prevClose && d.dailyReturn) return (d.prevClose * (1 + d.dailyReturn / 100)) - d.prevClose;
+  return 0;
+}
+
+function getDisplayPrice(d) {
+  if (d.price && d.price > 0) return d.price;
+  if (d.prevClose && d.prevClose > 0 && d.dailyReturn) {
+    return d.prevClose * (1 + d.dailyReturn / 100);
+  }
+  return 0;
+}
+
 export function resortRadarTable(targetDays = state.currentPeriodDays) {
   const sorted = [...state.currentRadarData].sort((a, b) => {
     const key = state.radarSortCol;
     let vA = 0, vB = 0;
-    if (key === 'price')        { vA = a.price || 0;             vB = b.price || 0; }
-    else if (key === 'change')  {
-      vA = (a.price && a.prevClose) ? (a.price - a.prevClose) : 0;
-      vB = (b.price && b.prevClose) ? (b.price - b.prevClose) : 0;
-    }
+    if (key === 'price')        { vA = getDisplayPrice(a);       vB = getDisplayPrice(b); }
+    else if (key === 'change')  { vA = getChangeVal(a);          vB = getChangeVal(b); }
     else if (key === 'amount')  { vA = a.amountDiff ?? a.amount; vB = b.amountDiff ?? b.amount; }
     else if (key === 'amount_abs') { vA = a.amount; vB = b.amount; }
     else if (key === 'volume') { vA = a.volume; vB = b.volume; }
@@ -59,8 +71,9 @@ export function renderRadarFromData(data, targetDays = state.currentPeriodDays) 
       if (!stock) return;
       const sector  = stock['產業別'] || '無';
       const ret     = d.dailyReturn;
-      const price   = d.price ? d.price.toFixed(2) : '-';
-      const changeVal = (d.price && d.prevClose) ? (d.price - d.prevClose) : 0;
+      const pVal    = getDisplayPrice(d);
+      const price   = pVal > 0 ? pVal.toFixed(2) : '-';
+      const changeVal = getChangeVal(d);
       const changeStr = changeVal > 0 ? `+${changeVal.toFixed(2)}` : changeVal < 0 ? `${changeVal.toFixed(2)}` : '0.00';
       const cls     = ret > 0 ? 'color-positive' : ret < 0 ? 'color-negative' : '';
       const sign    = ret > 0 ? '+' : '';
